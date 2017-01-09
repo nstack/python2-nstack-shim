@@ -138,3 +138,10 @@ def schema_to_types(schema):
     for i, j in schema.items():
         env[i] = transform_named_types(i, j, env)
     return env
+
+def process_schema(schema):
+    env = schema_to_types(schema.get('types', {}))
+    mut = lambda obj: apply_sig_to_object(schema.get('signatures'),
+                                          obj,
+                                          environment=env)
+    return (env, mut)
