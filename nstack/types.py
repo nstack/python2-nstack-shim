@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 id_ = lambda i: i
 
 class SumBase(object):
