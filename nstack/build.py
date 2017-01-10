@@ -92,7 +92,7 @@ def builder(inp, environment=None, name=None):
         # so we pull out children with keys...
         chs = uniplate.abstract_children(partial(generic.descend_types,
                                                  include_fields=True), inp)
-        return ctp({i: j(inp[i]) for i, j in chs.items()})
+        return lambda x: ctp({i: j(x[i]) for i, j in chs})
     if issubclass(typ, list):
         return lambda i: ctp(map(chs()[0], i))
     if issubclass(typ, tuple):
@@ -123,7 +123,9 @@ def create_mutator(convert_func):
             except Exception as e:
                 # todo: fill out info and add stack-trace in
                 raise TypeError("error converting types: {}".format(e))
-            return f(r)
+            x = f(r)
+            return uniplate.transform(x, uniplate.mktrans(types.NStackTypeOutputMixin,
+                                                          lambda i: i._nstackToBase()))
         return new_method
     return method_mutator
 
@@ -147,3 +149,4 @@ def process_schema(schema):
                                           obj,
                                           environment=env)
     return (env, mut)
+
