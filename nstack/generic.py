@@ -20,6 +20,6 @@ def descend_types_dict(inp, trans, include_fields=False, **k):
         return dict(inp, type=[t, [trans(i) for i in r]])
     if t == 'array':
         return dict(inp, type=[t, trans(r)])
-    if t in ['int', 'double', 'bool', 'bytearray']:
+    if t in ['int', 'double', 'bool', 'text', 'bytearray']:
         return inp
     raise TypeError("Unsupported type {}".format(t))

@@ -52,6 +52,8 @@ def convert_dict(inp, environment=False, name=None):
         return _custom_builtin(bool, name, optional=o)
     if t == 'bytearray':
         return lambda i: i # todo: bytes / bytearray . will we need to convert?
+    if t == 'text':
+        return _custom_builtin(str, name, optional=o)
     # todo: missing some types
 
     raise TypeError("Unknown type {}".format(t))
