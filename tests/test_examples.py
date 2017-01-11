@@ -18,3 +18,4 @@ def test_process_schema():
     x = b(_object_with_method((lambda self, i: repr(i)), name='method1'))
     # slightly brittle, but will do for now...
     assert x.method1(({'fst': 3, 'snd': 4}, (1, 2, 5))) == "(Record(fst='fst', snd='snd'), (1, 2, 5))"
+    assert x.method1(None) == "None"
