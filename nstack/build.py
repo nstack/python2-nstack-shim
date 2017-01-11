@@ -119,7 +119,7 @@ def create_mutator(convert_func):
         @wraps(f)
         def new_method(v):
             try:
-                r = convert_func(v)
+                r = cast(convert_func, v)
             except Exception as e:
                 # todo: fill out info and add stack-trace in
                 raise TypeError("error converting types: {}".format(e))

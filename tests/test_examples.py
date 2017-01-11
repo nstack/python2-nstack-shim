@@ -59,3 +59,18 @@ def test_nested_sum():
     assert x.method1((1, (2, (1, False)))) == (1, False)
     assert x.method1((1, (2, (0, 3)))) == (0, 3)
 
+
+def test_sum_args():
+    a, b = build.process_schema({'types': {'Foo': t_sum(('A', t_sum(('C', t_int), ('D', t_bool))),
+                                                       ('B', t_tuple(t_int, t_bool)))},
+                                 'signatures': {
+                                     'method1': [t_ref('Foo'), t_tuple(optional(t_int), optional(t_bool))]}})
+    def method1(self, inp):
+        return inp.match(lambda i: i.match(lambda j: (j, None),
+                                           lambda j: (None, j)),
+                         lambda i: (i[0], i[1]))
+
+    x = b(_object_with_method(method1))
+    assert x.method1((0, (0, 1))) == (1, None)
+    assert x.method1((0, (1, True))) == (None, True)
+    assert x.method1((1, (2, False))) == (2, False)
