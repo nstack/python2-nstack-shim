@@ -1,4 +1,4 @@
-from functools import partial, singledispatch, wraps
+from functools import partial, wraps
 import uniplate
 
 from . import generic

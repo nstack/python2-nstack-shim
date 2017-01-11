@@ -1,4 +1,4 @@
-from functools import partial, singledispatch
+from functools import singledispatch
 
 @singledispatch
 def descend_types(inp, trans, **k):

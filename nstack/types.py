@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 id_ = lambda i: i
+const = lambda i: lambda x: i
 
 class SumBase(object):
     pass
