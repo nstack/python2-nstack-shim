@@ -17,7 +17,19 @@ class NStackTypeOutputMixin(object):
     def _nstackToBase(self):
         raise NotImplementedError("_nstackToBase not implemented")
 
-def createtuple(name, length, optional=False):
+def createlist(name, preprocfunc=None, optional=False):
+    class ListProxy(list):
+        def __new__(cls, a=None):
+            if a is None and optional:
+                return None
+            return list.__new__(cls, a)
+        def __init__(self, a):
+            if preprocfunc:
+                a = preprocfunc(a)
+            super(ListProxy, self).__init__(a)
+    return type(name, (ListProxy, ), {})
+
+def createtuple(name, length, preprocfunc=None, optional=False):
     class TupleProxy(tuple):
         def __new__(cls, a=None):
             if a is None and optional:
@@ -26,13 +38,15 @@ def createtuple(name, length, optional=False):
                 # that semantics because of ambiguity
                 # with an optional empty tuple
                 return None
+            if preprocfunc:
+                a = preprocfunc(a)
             r = tuple.__new__(cls, a)
             if len(r) < length:
                 raise TypeError("tuple type too small")
             return r
     return type(name, (TupleProxy, ), {})
 
-def createrecord(name, fields, optional=False):
+def createrecord(name, fields, preprocfunc=None, optional=False):
     # fields is a mapping of name to constructor
     nt = namedtuple(name, fields)
     class TupleProxy(nt, RecordBase):
@@ -40,11 +54,13 @@ def createrecord(name, fields, optional=False):
             # intermediate class needed for use of super
             if a is None and optional:
                 return None
-            return super(TupleProxy, cls).__new__(cls, *a_)
+            if preprocfunc:
+                a = preprocfunc(a)
+            return super(TupleProxy, cls).__new__(cls, *a)
 
     return type(name, (TupleProxy, ), {})
 
-def createsum(name, constrs, optional=False):
+def createsum(name, constrs, preprocfuncs=None, optional=False):
     # constrs is a mapping of constr name to constructor
     subclasses = []
 
@@ -97,6 +113,8 @@ def createsum(name, constrs, optional=False):
 
     def makeconstructor(i):
         def constructor(self, value):
+            if preprocfuncs:
+                value = preprocfuncs[i](value)
             self._church = lambda args: args[i](value)
         return constructor
 
