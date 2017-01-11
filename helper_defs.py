@@ -11,6 +11,7 @@ optional = lambda i: dict(i, optional=True)
 t_int = t_('int')
 t_double = t_('double')
 t_text = t_('text')
+t_bool = t_('bool')
 
 t_ref = lambda ref: t_(('ref', ref))
 

@@ -49,3 +49,13 @@ def test_optional():
     assert a['Optional'](3) == 3
     with pytest.raises(ValueError):
         a['Optional']("string")
+
+def test_nested_sum():
+    a, b = build.process_schema({'types': {'Foo': t_sum(('A', t_int), ('B', t_bool))},
+                                 'signatures': {'method1': [
+                                     t_tuple(t_int, t_record(('a', t_bool), ('b', t_ref('Foo')))),
+                                     t_tuple(t_ref('Foo'))]}})
+    x = b(_object_with_method((lambda self, i: i[1][1]), name='method1'))
+    assert x.method1((1, (2, (1, False)))) == (1, False)
+    assert x.method1((1, (2, (0, 3)))) == (0, 3)
+

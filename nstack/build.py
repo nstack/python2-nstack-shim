@@ -23,9 +23,14 @@ def _mutate_obj_methods(obj, handlers):
         setattr(obj, i, j(getattr(obj, i)))
     return obj
 
+def cast(typ, val):
+    if issubclass(typ, types.NStackTypeInputMixin):
+        return typ._nstackFromBase(val)
+    return typ(val)
+
 def preproc_sum(inp):
     chs = uniplate.abstract_children(generic.descend_types, inp)
-    return chs
+    return [(lambda i: lambda v: cast(i, v))(i) for i in chs]
 
 def preproc_iter(inp):
     chs = uniplate.abstract_children(generic.descend_types, inp)
@@ -33,7 +38,7 @@ def preproc_iter(inp):
     def cast_iter(bs):
         def inner(inp):
             cur, bs[:] = bs[0], bs[1:]
-            return cur(inp)
+            return cast(cur, inp)
         return inner
 
     return lambda i: uniplate.descend(i, cast_iter(chs[:]))
@@ -44,8 +49,8 @@ def preproc_dict(inp, allow_missing=False):
         inp)
 
     if allow_missing:
-        return lambda i: {j: k(inp.get(j)) for j, k in chs}
-    return lambda i: {j: k(inp[j]) for j, k in chs}
+        return lambda i: {j: cast(k, inp.get(j)) for j, k in chs}
+    return lambda i: {j: cast(k, inp[j]) for j, k in chs}
 
 def convert(inp, environment=False, name=None):
     environment = environment or {}
