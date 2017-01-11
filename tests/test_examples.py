@@ -32,9 +32,12 @@ def test_sums():
     assert x.getRight() == 3
     with pytest.raises(TypeError):
         x.getLeft()
-    assert x.match((lambda a: False), (lambda a: True))
-    assert not x.match((lambda a: True), (lambda a: False))
-    assert x.match((lambda i: i), (lambda i: i * 3)) == 9
+    assert x.match(lambda a: False,
+                   lambda a: True)
+    assert not x.match(lambda a: True,
+                       lambda a: False)
+    assert x.match(lambda i: i,
+                   lambda i: i * 3) == 9
     assert x.value == 3
 
     assert isinstance(a['Either'].Left(3), a['Either'].Left)
