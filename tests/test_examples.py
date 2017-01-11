@@ -42,3 +42,10 @@ def test_sums():
 
     assert isinstance(a['Either'].Left(3), a['Either'].Left)
     assert not isinstance(a['Either'].Left(3), a['Either'].Right)
+
+def test_optional():
+    a, b = build.process_schema(example)
+    assert a['Optional'](None) is None
+    assert a['Optional'](3) == 3
+    with pytest.raises(ValueError):
+        a['Optional']("string")

@@ -15,7 +15,7 @@ def _custom_builtin(cls, name=None, optional=False):
     if not optional:
         return _named(cls, name)
     return type(name or 'Optional({})'.format(cls), (cls, ), {
-        '__new__': lambda cls, val: None if val is None else cls.__new__(cls, val)
+        '__new__': lambda cls2, val: None if val is None else cls.__new__(cls2, val)
     })
 
 def _mutate_obj_methods(obj, handlers):
