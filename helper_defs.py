@@ -21,4 +21,5 @@ t_sum = lambda *r: tc_('sum')(r)
 t_record = lambda *f: tc_('record')(f)
 t_tuple = lambda *f: tc_('tuple')(f)
 
+t_unit = t_tuple()
 t_either = lambda a, b: t_sum(('Left', a), ('Right', b))

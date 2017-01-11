@@ -74,3 +74,13 @@ def test_sum_args():
     assert x.method1((0, (0, 1))) == (1, None)
     assert x.method1((0, (1, True))) == (None, True)
     assert x.method1((1, (2, False))) == (2, False)
+
+def test_unit_input():
+    a, b = build.process_schema({'signatures': {'method1': [t_unit, t_bool]}})
+    x = b(_object_with_method((lambda self, i: i == ()), name='method1'))
+    assert x.method1(()) is True
+
+def test_unit_output():
+    a, b = build.process_schema({'signatures': {'method1': [optional(t_unit), t_unit]}})
+    x = b(_object_with_method((lambda self, i: ()), name='method1'))
+    assert x.method1(None) == ()
