@@ -11,6 +11,10 @@ import argparse
 try:
     from gi.repository import GLib
 except ImportError:
+    # support pgi as a fallback
+    # for use in non-system pythons
+    import pgi
+    pgi.install_as_gi()
     from pgi.repository import GLib
 
 from pydbus import SessionBus
