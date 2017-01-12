@@ -28,13 +28,7 @@ class DBusWrapper(object):
     def _make_call(self, method_name, args):
         """dynamically call into the user service"""
         func = getattr(self.service, method_name)
-        if len(args) > 0:
-            args1 = args[0]  # unpack the 1st tuple element
-            if not isinstance(args1, tuple): raise TypeError("DBus argument is not a tuple; all nstack service arguments should be lifted into an outer tuple")
-            result = func(*args1)
-        else:
-            result = func()
-        return result
+        return func(args)
 
 
 class BaseService(object):

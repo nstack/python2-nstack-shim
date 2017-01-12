@@ -8,7 +8,11 @@ import signal
 import sys
 import argparse
 
-from gi.repository import GLib, GObject
+try:
+    from gi.repository import GLib
+except ImportError:
+    from pgi.repository import GLib
+
 from pydbus import SessionBus
 
 import nstack
@@ -36,7 +40,7 @@ def main():
     args = parser.parse_args()
 
     # setup the main loop
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
 
     # publish on dbus and start main loop
     try:
