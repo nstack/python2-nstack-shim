@@ -25,7 +25,7 @@ test_requirements = [
 ]
 
 setup(
-    name='nstack-python-shim',
+    name='python-nstack-shim',
     version='0.0.1',
     description="Python NStack Shim",
     long_description="Allows calling Python-based container methods from NStack workflows with typed data",
