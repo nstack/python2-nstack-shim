@@ -5,7 +5,8 @@ from types import ModuleType
 
 from . import build
 
-SIGNATURE_FILE = os.path.join(os.getcwd(), "sig.json")
+SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
+INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
 
 class DBusWrapper(object):
     """ Proxy object that intercepts all requests, unpacks/packs as needed, and
@@ -13,7 +14,7 @@ class DBusWrapper(object):
 
     @classmethod
     def update_dbus(cls):
-        with open("dbus-module.xml", "r") as f:
+        with open(INTROSPECTION_FILE, "r") as f:
           cls.dbus = f.read()
 
     def __init__(self, service):
@@ -21,7 +22,7 @@ class DBusWrapper(object):
         self.service = service
 
     def __getattr__(self, method_name):
-        def method(*args):
+        def method(args):
             return self._make_call(method_name, args)
         return method
 
@@ -59,7 +60,7 @@ new_module.__dict__.update({
 
 if os.path.exists(SIGNATURE_FILE):
     with open(SIGNATURE_FILE) as f:
-        data = json.load(f)
+        data = json.load(f)["api"]
         a, b = build.process_schema(data)
         for i, j in a.items():
             setattr(new_module, i, j)
