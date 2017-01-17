@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import traceback
 from types import ModuleType
 
 from . import build
@@ -29,8 +30,11 @@ class DBusWrapper(object):
     def _make_call(self, method_name, args):
         """dynamically call into the user service"""
         func = getattr(self.service, method_name)
-        return func(args)
-
+        try:
+          return func(args)
+        except Exception as e:
+          traceback.print_exc()
+          raise e
 
 class BaseService(object):
     def __init__(self):
