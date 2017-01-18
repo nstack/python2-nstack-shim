@@ -8,6 +8,7 @@ from . import build
 
 SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
 INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
+nstack_module = sys.modules[__name__] = ModuleType(__name__)
 
 class DBusWrapper(object):
     """ Proxy object that intercepts all requests, unpacks/packs as needed, and
@@ -20,7 +21,11 @@ class DBusWrapper(object):
 
     def __init__(self, service):
         self.update_dbus()
-        self.service = service
+        try:
+          self.service = nstack_module._wrapObject(service)
+        except AttributeError as e:
+          print ("got error", e)
+          self.service = service
 
     def __getattr__(self, method_name):
         def method(args):
@@ -30,11 +35,7 @@ class DBusWrapper(object):
     def _make_call(self, method_name, args):
         """dynamically call into the user service"""
         func = getattr(self.service, method_name)
-        try:
-          return func(args)
-        except Exception as e:
-          traceback.print_exc()
-          raise e
+        return func(args)
 
 class BaseService(object):
     def __init__(self):
@@ -51,8 +52,8 @@ class BaseService(object):
     def shutdown(self):
         pass
 
-new_module = sys.modules[__name__] = ModuleType(__name__)
-new_module.__dict__.update({
+# update the nstack module dict
+nstack_module.__dict__.update({
     '__file__': __file__,
     '__doc__': __doc__,
     '__path__': __path__,
@@ -62,10 +63,14 @@ new_module.__dict__.update({
     'BaseService': BaseService,
 })
 
-if os.path.exists(SIGNATURE_FILE):
-    with open(SIGNATURE_FILE) as f:
-        data = json.load(f)["api"]
-        a, b = build.process_schema(data)
-        for i, j in a.items():
-            setattr(new_module, i, j)
-            setattr(new_module, '_wrapObject', b)
+# add the base types and wrapObject function from the signature to the nstack_module
+assert(os.path.exists(SIGNATURE_FILE))
+with open(SIGNATURE_FILE) as f:
+    data = json.load(f)
+    a, b = build.process_schema(data["api"])
+    print(a)
+    print(b)
+    for i, j in a.items():
+        setattr(nstack_module, i, j)
+    setattr(nstack_module, '_wrapObject', b)
+
