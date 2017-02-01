@@ -4,10 +4,10 @@ from nstack import build
 from helper_defs import *
 
 example = {
- "types": {"Either": t_either(t_int, t_int),
-           "Pair": t_tuple(t_int, t_int),
-           "Record": t_record(('fst', t_int), ('snd', t_int)),
-           "Optional": optional(t_int)},
+ "types": [["Either", t_either(t_int, t_int)],
+           ["Pair", t_tuple(t_int, t_int)],
+           ["Record", t_record(('fst', t_int), ('snd', t_int))],
+           ["Optional", optional(t_int)], ],
  "signatures": {"method1": [optional(t_tuple(t_ref('Record'), t_tuple(t_int, t_int, t_int))),
                             t_text]}}
 
@@ -51,7 +51,7 @@ def test_optional():
         a['Optional']("string")
 
 def test_nested_sum():
-    a, b = build.process_schema({'types': {'Foo': t_sum(('A', t_int), ('B', t_bool))},
+    a, b = build.process_schema({'types': [['Foo', t_sum(('A', t_int), ('B', t_bool))], ],
                                  'signatures': {'method1': [
                                      t_tuple(t_int, t_record(('a', t_bool), ('b', t_ref('Foo')))),
                                      t_tuple(t_ref('Foo'))]}})
@@ -61,8 +61,8 @@ def test_nested_sum():
 
 
 def test_sum_args():
-    a, b = build.process_schema({'types': {'Foo': t_sum(('A', t_sum(('C', t_int), ('D', t_bool))),
-                                                       ('B', t_tuple(t_int, t_bool)))},
+    a, b = build.process_schema({'types': [['Foo', t_sum(('A', t_sum(('C', t_int), ('D', t_bool))),
+                                                         ('B', t_tuple(t_int, t_bool)))], ],
                                  'signatures': {
                                      'method1': [t_ref('Foo'), t_tuple(optional(t_int), optional(t_bool))]}})
     def method1(self, inp):

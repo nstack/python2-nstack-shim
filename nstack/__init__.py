@@ -64,13 +64,13 @@ nstack_module.__dict__.update({
 })
 
 # add the base types and wrapObject function from the signature to the nstack_module
-assert(os.path.exists(SIGNATURE_FILE))
-with open(SIGNATURE_FILE) as f:
-    data = json.load(f)
-    a, b = build.process_schema(data["api"])
-    print(a)
-    print(b)
-    for i, j in a.items():
-        setattr(nstack_module, i, j)
-    setattr(nstack_module, '_wrapObject', b)
+if(os.path.exists(SIGNATURE_FILE)):
+    with open(SIGNATURE_FILE) as f:
+        data = json.load(f)
+        a, b = build.process_schema(data["api"])
+        print(a)
+        print(b)
+        for i, j in a.items():
+            setattr(nstack_module, i, j)
+        setattr(nstack_module, '_wrapObject', b)
 
