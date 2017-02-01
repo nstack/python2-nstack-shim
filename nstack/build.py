@@ -140,12 +140,12 @@ def apply_sig_to_object(schema, obj, environment=None):
 
 def schema_to_types(schema):
     env = {}
-    for i, j in schema.items():
+    for i, j in schema:
         env[i] = transform_named_types(i, j, env)
     return env
 
 def process_schema(schema):
-    env = schema_to_types(schema.get('types', {}))
+    env = schema_to_types(schema.get('types', []))
     mut = lambda obj: apply_sig_to_object(schema.get('signatures'),
                                           obj,
                                           environment=env)
