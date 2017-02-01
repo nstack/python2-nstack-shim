@@ -87,7 +87,7 @@ def convert(inp, environment=False, name=None):
     if t == 'bool':
         return _custom_builtin(bool, name, optional=o)
     if t == 'bytearray':
-        return lambda i: i # todo: bytes / bytearray . will we need to convert?
+        return _custom_builtin(bytes, name, optional=o)
     if t == 'text':
         return _custom_builtin(str, name, optional=o)
     # todo: missing some types
