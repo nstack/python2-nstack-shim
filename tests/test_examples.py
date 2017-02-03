@@ -84,3 +84,9 @@ def test_unit_output():
     a, b = build.process_schema({'signatures': {'method1': [optional(t_unit), t_unit]}})
     x = b(_object_with_method((lambda self, i: ()), name='method1'))
     assert x.method1(None) == ()
+
+def test_lists():
+    a, b = build.process_schema({'signatures': {'method1': [t_array(t_int), t_int]}})
+    x = b(_object_with_method((lambda self, i: len(i)), name='method1'))
+    assert x.method1([1,2,3,4,5]) == 5
+
