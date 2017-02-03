@@ -78,7 +78,7 @@ def convert(inp, environment=False, name=None):
                                  optional=o)
     if t == 'array':
         return types.createlist(name or "list",
-                                preprocfunc=r,
+                                preprocfunc=lambda i: (r(j) for j in i),
                                 optional=o)
     if t == 'int':
         return _custom_builtin(int, name, optional=o)
