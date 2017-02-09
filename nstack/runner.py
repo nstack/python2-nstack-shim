@@ -3,10 +3,13 @@
 """
 Demo NStack service
 """
+import logging
 import os
 import signal
 import sys
 import argparse
+
+logger = logging.getLogger('python-runner')
 
 # Because systemd-nspawn is not connect to a TTY, python will
 # open stdout and stderr in default file buffering mode. However,
@@ -29,7 +32,7 @@ import nstack
 from service import Service
 
 def sigterm_handler(signo, frame):
-    print("Received shutdown signal".format(signo))
+    logger.warn("Received shutdown signal".format(signo))
     sys.exit(0)
 
 def main():
@@ -38,8 +41,13 @@ def main():
 
     # get the service name
     parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action="store_true", help="Enable debugging")
     parser.add_argument('name', help="Service Name")
     args = parser.parse_args()
+    loglevel = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(level=loglevel)
+    if args.debug:
+        logger.debug("Enabled debug logging!")
 
     # setup the main loop
     loop = GLib.MainLoop()
