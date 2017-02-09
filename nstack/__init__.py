@@ -1,10 +1,13 @@
 import json
+import logging
 import os
 import sys
 import traceback
 from types import ModuleType
 
 from . import build
+
+logger = getLogger()
 
 SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
 INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
@@ -23,8 +26,8 @@ class DBusWrapper(object):
         self.update_dbus()
         try:
           self.service = nstack_module._wrapObject(service)
-        except AttributeError as e:
-          print ("got error", e)
+        except AttributeError:
+          logger.exception("error wrapping service object")
           self.service = service
 
     def __getattr__(self, method_name):
@@ -34,17 +37,25 @@ class DBusWrapper(object):
 
     def _make_call(self, method_name, args):
         """dynamically call into the user service"""
+        logger.debug("data in: {}".format(args))
         func = getattr(self.service, method_name)
-        return func(args)
+        try:
+            r = func(args)
+        except Exception:
+            logger.exception("error calling service method: {} with args: {}".format(
+                method_name, args))
+            raise
+        logger.debug("data out: {}".format(r))
+        return r
 
 class BaseService(object):
     def __init__(self):
         self.startup()
-        print("Starting service...")
+        logger.info("Starting service...")
 
     def Quit(self):
         self.shutdown()
-        print("...stopping service")
+        logger.info("...stopping service")
 
     def startup(self):
         pass
@@ -68,8 +79,6 @@ if(os.path.exists(SIGNATURE_FILE)):
     with open(SIGNATURE_FILE) as f:
         data = json.load(f)
         a, b = build.process_schema(data["api"])
-        print(a)
-        print(b)
         for i, j in a.items():
             setattr(nstack_module, i, j)
         setattr(nstack_module, '_wrapObject', b)
