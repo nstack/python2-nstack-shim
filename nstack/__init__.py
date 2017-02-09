@@ -6,8 +6,9 @@ import traceback
 from types import ModuleType
 
 from . import build
+from . import runner
 
-logger = logging.getLogger()
+logger = logging.getLogger(runner.LOG_NAME)
 
 SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
 INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")

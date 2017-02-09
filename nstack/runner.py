@@ -9,6 +9,8 @@ import signal
 import sys
 import argparse
 
+LOG_NAME = 'python'
+
 # Because systemd-nspawn is not connect to a TTY, python will
 # open stdout and stderr in default file buffering mode. However,
 # we want line buffering mode.
@@ -30,7 +32,7 @@ import nstack
 from service import Service
 
 def sigterm_handler(signo, frame):
-    logging.getLogger().warn("Received shutdown signal".format(signo))
+    logging.getLogger(LOG_NAME).warn("Received shutdown signal".format(signo))
     sys.exit(0)
 
 def main():
@@ -45,7 +47,7 @@ def main():
     loglevel = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=loglevel)
     if args.debug:
-        logging.getLogger().debug("Enabled debug logging!")
+        logging.getLogger(LOG_NAME).debug("Enabled debug logging!")
 
     # setup the main loop
     loop = GLib.MainLoop()
