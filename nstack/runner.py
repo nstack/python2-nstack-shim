@@ -9,7 +9,7 @@ import signal
 import sys
 import argparse
 
-from nstack import logger
+logger = logging.getLogger('python-runner')
 
 # Because systemd-nspawn is not connect to a TTY, python will
 # open stdout and stderr in default file buffering mode. However,
