@@ -7,7 +7,7 @@ from types import ModuleType
 
 from . import build
 
-logger = getLogger()
+logger = logging.getLogger()
 
 SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
 INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
