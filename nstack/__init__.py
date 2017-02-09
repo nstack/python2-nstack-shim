@@ -39,7 +39,7 @@ class DBusWrapper(object):
     def _make_call(self, method_name, args):
         """dynamically call into the user service"""
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug("method: {}, data in: {}".format(method_name, reprlib.repr(args)))
+            logger.debug("{}, data in: {}".format(method_name, reprlib.repr(args)))
         func = getattr(self.service, method_name)
         try:
             r = func(args)
@@ -48,7 +48,7 @@ class DBusWrapper(object):
                 method_name, args))
             raise
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug("method: {}, data out: {}".format(method_name, reprlib.repr(r)))
+            logger.debug("{}, data out: {}".format(method_name, reprlib.repr(r)))
         return r
 
 class BaseService(object):
