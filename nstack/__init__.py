@@ -53,6 +53,10 @@ class DBusWrapper(object):
 
 class BaseService(object):
     def __init__(self):
+        try:
+          self.args = json.loads(os.environ['NSTACK_ARGS'])
+        except KeyError:
+          raise RuntimeError("NSTACK_ARGS not present in the environment")
         self.startup()
         logger.info("Starting service...")
 
