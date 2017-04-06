@@ -51,10 +51,13 @@ def main():
 
     # setup the main loop
     loop = GLib.MainLoop()
-
+    bus = SessionBus()
     # publish on dbus and start main loop
     try:
-        with SessionBus().publish(args.name, nstack.DBusWrapper(Service())):
+        with bus.publish(args.name, nstack.DBusWrapper(
+                bus.get("{}.callback".format(args.name),
+                        "/com/nstack/service/callback"),
+                Service())):
             loop.run()
     except KeyboardInterrupt:
         loop.quit()

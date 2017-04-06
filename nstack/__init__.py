@@ -4,7 +4,7 @@ import os
 import reprlib
 import sys
 import traceback
-from types import ModuleType
+from types import GeneratorType, ModuleType
 
 from . import build
 
@@ -23,7 +23,8 @@ class DBusWrapper(object):
         with open(INTROSPECTION_FILE, "r") as f:
           cls.dbus = f.read()
 
-    def __init__(self, service):
+    def __init__(self, out, service):
+        self.out = out
         self.update_dbus()
         try:
           self.service = nstack_module._wrapObject(service)
@@ -47,9 +48,20 @@ class DBusWrapper(object):
             logger.exception("error calling service method: {} with args: {}".format(
                 method_name, args))
             raise
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug("{}, data out: {}".format(method_name, reprlib.repr(r)))
-        return r
+        if not isinstance(r, GeneratorType):
+            r = [r]
+        out = self.out
+        try:
+            for item in r:
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug("{}, data out: {}".format(method_name, reprlib.repr(r)))
+                out.Callback(r)
+        except Exception:
+            logger.exception("error iterating results for method: {} with args: {}".format(
+                method_name, args))
+            raise
+        logger.debug("{}, data finished.".format(method_name))
+        return None
 
 class BaseService(object):
     def __init__(self):
