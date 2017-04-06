@@ -54,8 +54,8 @@ class DBusWrapper(object):
         try:
             for item in r:
                 if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug("{}, data out: {}".format(method_name, reprlib.repr(r)))
-                out.Callback(r)
+                    logger.debug("{}, data out: {}".format(method_name, reprlib.repr(item)))
+                out.callback(item)
         except Exception:
             logger.exception("error iterating results for method: {} with args: {}".format(
                 method_name, args))
