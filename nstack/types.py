@@ -97,6 +97,9 @@ def createsum(name, constrs, preprocfuncs=None, optional=False):
             err = raiseTypeError(cls.__name__) if default is raiseOnTypeError else const(default)
             return self.match(*((id_ if cls is j else err) for j in subclasses))
 
+        def _isA(self, cls):
+            return self.match(*((lambda v: cls is j) for j in subclasses))
+
         def __repr__(self):
             return "<{}: {}({})>".format(name, self._constructor_name, self.value)
 
@@ -129,4 +132,5 @@ def createsum(name, constrs, preprocfuncs=None, optional=False):
         setattr(base_, j, branch)
         setattr(base_, "get" + j, (lambda branch_:
             lambda self, default=raiseOnTypeError: self._getAs(branch_, default=default))(branch))
+        setattr(base_, "is" + j, (lambda branch_: lambda self: self._isA(branch))(branch))
     return base_
