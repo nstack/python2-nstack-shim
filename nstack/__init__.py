@@ -94,8 +94,6 @@ nstack_module.__dict__.update({
 if(os.path.exists(SIGNATURE_FILE)):
     with open(SIGNATURE_FILE) as f:
         data = json.load(f)
-        a, b = build.process_schema(data["api"])
-        for i, j in a.items():
-            setattr(nstack_module, i, j)
+        a, b, c = build.process_schema(data["api"], nstack_module)
         setattr(nstack_module, '_wrapObject', b)
 

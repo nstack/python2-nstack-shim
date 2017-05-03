@@ -59,6 +59,8 @@ def convert(inp, environment=False, name=None):
     t, r = inp['type']
 
     if t == 'ref':
+        if isinstance(r, list):
+            r = tuple(r)
         return environment[r]
     if t == 'sum':
         return types.createsum(name or "sum",
@@ -141,13 +143,26 @@ def apply_sig_to_object(schema, obj, environment=None):
 def schema_to_types(schema):
     env = {}
     for i, j in schema:
-        env[i] = transform_named_types(i, j, env)
+        nm, k = (i[1], tuple(i)) if isinstance(i, (list, tuple)) else (i, i)
+        env[k] = transform_named_types(nm, j, env)
     return env
 
-def process_schema(schema):
+def process_schema(schema, applynsto=None):
+    applynsto = applynsto or type('scope', (object, ), {})
     env = schema_to_types(schema.get('types', []))
     mut = lambda obj: apply_sig_to_object(schema.get('signatures'),
                                           obj,
                                           environment=env)
-    return (env, mut)
+    for i, j in schema.get('imports', []):
+        ns_ = type(i, (object,), {k[1]: l for k, l in env.items()
+                                  if isinstance(k, tuple) and k[0] == j})
+        setattr(applynsto, i, ns_)
+    for i in schema.get('unqualified', []):
+        for k, l in env.items():
+            if isinstance(k, tuple) and k[0] == i:
+                setattr(applynsto, k[1], l)
+    for i, j in env.items():
+        if not isinstance(i, tuple):
+            setattr(applynsto, i, j)
+    return (env, mut, applynsto)
 
