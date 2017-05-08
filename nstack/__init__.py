@@ -14,6 +14,15 @@ SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
 INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
 nstack_module = sys.modules[__name__] = ModuleType(__name__)
 
+# load the api definition from the json file
+# the file is absent when running unit tests, hence the if statement
+# (see https://stackhut.slack.com/archives/C21MX7TUG/p1494339914372158)
+if(os.path.exists(SIGNATURE_FILE)):
+    with open(SIGNATURE_FILE) as f:
+        data = json.load(f)
+else:
+    data = None
+
 class DBusWrapper(object):
     """ Proxy object that intercepts all requests, unpacks/packs as needed, and
     forwards on to the user service"""
@@ -24,6 +33,7 @@ class DBusWrapper(object):
           cls.dbus = f.read()
 
     def __init__(self, out, service):
+        # Note: out is None if this is a sink
         self.out = out
         self.update_dbus()
         try:
@@ -51,16 +61,19 @@ class DBusWrapper(object):
         if not isinstance(r, GeneratorType):
             r = [r]
         out = self.out
-        try:
-            for item in r:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug("{}, data out: {}".format(method_name, reprlib.repr(item)))
-                out.callback(item)
-        except Exception:
-            logger.exception("error iterating results for method: {} with args: {}".format(
-                method_name, args))
-            raise
-        logger.debug("{}, data finished.".format(method_name))
+        if out is None:
+            logger.debug("{} is sink, no data is sent back.".format(method_name))
+        else:
+            try:
+                for item in r:
+                    if logger.isEnabledFor(logging.DEBUG):
+                        logger.debug("{}, data out: {}".format(method_name, reprlib.repr(item)))
+                    out.callback(item)
+            except Exception:
+                logger.exception("error iterating results for method: {} with args: {}".format(
+                    method_name, args))
+                raise
+            logger.debug("{}, data finished.".format(method_name))
         return None
 
 class BaseService(object):
@@ -88,12 +101,11 @@ nstack_module.__dict__.update({
     #'__all__': ['_types'],
     'DBusWrapper': DBusWrapper,
     'BaseService': BaseService,
+    'data': data
 })
 
 # add the base types and wrapObject function from the signature to the nstack_module
-if(os.path.exists(SIGNATURE_FILE)):
-    with open(SIGNATURE_FILE) as f:
-        data = json.load(f)
-        a, b, c = build.process_schema(data["api"], nstack_module)
-        setattr(nstack_module, '_wrapObject', b)
+if data is not None:
+    a, b, c = build.process_schema(data["api"], nstack_module)
+    setattr(nstack_module, '_wrapObject', b)
 

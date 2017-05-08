@@ -35,6 +35,10 @@ def sigterm_handler(signo, frame):
     logger.warn("Received shutdown signal".format(signo))
     sys.exit(0)
 
+# determine if the function under this name is a sink
+def is_sink(name):
+    return nstack.data['api']['signatures'][name][1]['type'][0] == "void"
+
 def main():
     # install signal handler
     signal.signal(signal.SIGTERM, sigterm_handler)
@@ -42,7 +46,11 @@ def main():
     # get the service name
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action="store_true", help="Enable debugging")
-    parser.add_argument('name', help="Service Name")
+    # service_name looks something like nstackmodule.foo.id40
+    parser.add_argument('service_name', help="Service Name")
+    # function_name is the name of the python function that will be called
+    # through dbus from this container
+    parser.add_argument('function_name', help="Service Name")
     args = parser.parse_args()
     loglevel = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=loglevel)
@@ -53,11 +61,14 @@ def main():
     loop = GLib.MainLoop()
     bus = SessionBus()
     # publish on dbus and start main loop
+
+    if is_sink(args.function_name):
+        out = None
+    else:
+        out = bus.get("{}.callback".format(args.service_name),
+                    "/com/nstack/service/callback")
     try:
-        with bus.publish(args.name, nstack.DBusWrapper(
-                bus.get("{}.callback".format(args.name),
-                        "/com/nstack/service/callback"),
-                Service())):
+        with bus.publish(args.service_name, nstack.DBusWrapper(out, Service())):
             loop.run()
     except KeyboardInterrupt:
         loop.quit()
