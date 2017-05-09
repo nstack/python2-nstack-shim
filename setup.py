@@ -16,6 +16,7 @@ requirements = [
     "uniplate==0.0.1",
     "pydbus==0.6.0",
     "pgi==0.0.11.1",
+    "pytest-runner",
 ]
 
 # put package test requirements here
