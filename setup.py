@@ -14,6 +14,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 # put package test requirements here
 requirements = [
     "uniplate==0.0.1",
+    "singledispatch==3.4.0.3",
+    "future==0.16.0",
     "pydbus==0.6.0",
     "pgi==0.0.11.1",
     "pytest-runner",

@@ -1,6 +1,15 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import open
+from builtins import *
+from future import standard_library
+standard_library.install_aliases()
 import json
 import logging
 import os
+import os.path
 import reprlib
 import sys
 import traceback
@@ -10,9 +19,10 @@ from . import build
 
 logger = logging.getLogger('python-service')
 
-SIGNATURE_FILE = os.path.join(os.getcwd(), "nstack-metadata.json")
-INTROSPECTION_FILE = os.path.join(os.getcwd(), "dbus-module.xml")
+SIGNATURE_FILE = os.path.join(os.getcwdu(), "nstack-metadata.json")
+INTROSPECTION_FILE = os.path.join(os.getcwdu(), "dbus-module.xml")
 nstack_module = sys.modules[__name__] = ModuleType(__name__)
+
 
 # load the api definition from the json file
 # the file is absent when running unit tests, hence the if statement
